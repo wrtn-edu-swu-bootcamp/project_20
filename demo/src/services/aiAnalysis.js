@@ -25,7 +25,10 @@ export async function analyzeClothing(imageFile) {
   
   // 4. 경로 추천 및 임팩트 계산 (브랜드 정보 포함)
   const recommendedPaths = calculatePaths(grade, category, brand);
-  const environmentalImpact = calculateImpact(grade);
+  
+  // 최상위 추천 경로 기반으로 환경 임팩트 계산
+  const topPath = recommendedPaths[0];
+  const environmentalImpact = calculateImpact(topPath);
   
   // 5. 최종 결과
   return {

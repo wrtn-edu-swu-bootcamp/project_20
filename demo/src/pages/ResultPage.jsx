@@ -2,6 +2,7 @@ import { ArrowLeft, Package, CheckCircle2, AlertCircle, Tag, TrendingUp, PieChar
 import { useState, useEffect } from 'react';
 import { ALL_BRANDS } from '../services/gradeClassifier';
 import { calculatePaths } from '../utils/pathCalculator';
+import { calculateImpact } from '../utils/impactCalculator';
 
 export default function ResultPage({ result, imageUrl, onBackToHome }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -34,10 +35,13 @@ export default function ResultPage({ result, imageUrl, onBackToHome }) {
   // 브랜드 변경 핸들러
   const handleBrandUpdate = (newBrand) => {
     const updatedPaths = calculatePaths(currentResult.grade, currentResult.category, newBrand);
+    const updatedImpact = calculateImpact(updatedPaths[0]); // 최상위 추천 경로 기반
+    
     setCurrentResult({
       ...currentResult,
       brand: newBrand,
-      recommendedPaths: updatedPaths
+      recommendedPaths: updatedPaths,
+      environmentalImpact: updatedImpact
     });
     setBrandInput(newBrand);
     setEditingBrand(false);
