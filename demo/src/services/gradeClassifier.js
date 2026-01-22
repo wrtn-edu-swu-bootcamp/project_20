@@ -89,6 +89,60 @@ export function detectDamage(labels) {
   return detected.length > 0 ? detected : ['없음'];
 }
 
+// 브랜드 Tier 시스템 (중고거래 시장 기반)
+export const BRAND_TIERS = {
+  premium: [ // 후루츠패밀리 고가 재판매
+    'GUCCI', 'PRADA', 'CHANEL', 'DIOR', 'Louis Vuitton', 'HERMES', 'BURBERRY', 'FENDI', 
+    'VERSACE', 'BALENCIAGA', 'Vivienne Westwood', 'Supreme', 'BAPE', 'Comme des Garçons',
+    'Maison Margiela', 'Yohji Yamamoto', 'Chrome Hearts', 'KAPITAL', 'Hysteric Glamour'
+  ],
+  popular: [ // 번개장터 대중적 인기
+    'ARCTERYX', 'Stussy', 'POLO', 'Carhartt', 'Patagonia', 'Diesel', 'The North Face',
+    '아더에러', '무신사 스탠다드', '준지', '띠어리', '지용킴', 'Tommy Hilfiger', 'Calvin Klein'
+  ],
+  sports: [ // 스포츠/캐주얼
+    'NIKE', 'ADIDAS', 'PUMA', 'New Balance', 'FILA', 'Reebok', 'Under Armour',
+    'UGG', 'RAINS', '휠라', '러기드하우스', '뉴오브', '버닝카포네'
+  ],
+  basic: [ // 기본 브랜드
+    'ZARA', 'H&M', 'UNIQLO', 'GAP', 'Mango', 'SPAO', '탑텐', '지오다노', 
+    '베이직하우스', 'WHO.A.U', 'MIXXO'
+  ]
+};
+
+// 모든 브랜드 리스트 (자동완성용)
+export const ALL_BRANDS = [
+  // Premium
+  'GUCCI', 'PRADA', 'CHANEL', 'DIOR', 'Louis Vuitton', 'HERMES', 'BURBERRY', 'FENDI', 
+  'VERSACE', 'BALENCIAGA', 'Vivienne Westwood', 'Supreme', 'BAPE', 'Comme des Garçons',
+  'Maison Margiela', 'Yohji Yamamoto', 'Chrome Hearts', 'KAPITAL', 'Hysteric Glamour',
+  // Popular
+  'ARCTERYX', 'Stussy', 'POLO', 'Carhartt', 'Patagonia', 'Diesel', 'The North Face',
+  '아더에러', '무신사 스탠다드', '준지', '띠어리', '지용킴', 'Tommy Hilfiger', 'Calvin Klein',
+  'Lacoste', "Levi's",
+  // Sports
+  'NIKE', 'ADIDAS', 'PUMA', 'New Balance', 'FILA', 'Reebok', 'Under Armour',
+  'UGG', 'RAINS', '휠라', '러기드하우스', '뉴오브', '버닝카포네',
+  // Basic
+  'ZARA', 'H&M', 'UNIQLO', 'GAP', 'Forever 21', 'Mango', 'SPAO', '탑텐', '지오다노', 
+  '베이직하우스', 'WHO.A.U', 'MIXXO', 'TNGT', '폴햄',
+  // Outdoor
+  'Columbia', 'K2', 'Kolon Sport', 'Nepa', 'Discovery'
+].sort();
+
+// 브랜드 Tier 판별 함수
+export function getBrandTier(brandName) {
+  if (!brandName) return 'unknown';
+  
+  const brand = brandName.toUpperCase();
+  for (const [tier, brands] of Object.entries(BRAND_TIERS)) {
+    if (brands.some(b => brand.includes(b.toUpperCase()))) {
+      return tier;
+    }
+  }
+  return 'basic';
+}
+
 export function extractBrand(textAnnotations) {
   if (!textAnnotations || textAnnotations.length === 0) return null;
   
@@ -123,6 +177,17 @@ export function extractBrand(textAnnotations) {
     { name: 'VERSACE', variants: ['VERSACE', 'VER SACE'] },
     { name: 'BALENCIAGA', variants: ['BALENCIAGA', 'BALEN CIAGA'] },
     
+    // 빈티지/스트릿
+    { name: 'Vivienne Westwood', variants: ['VIVIENNE WESTWOOD', 'VIVIENNE', 'WESTWOOD'] },
+    { name: 'Supreme', variants: ['SUPREME'] },
+    { name: 'BAPE', variants: ['BAPE', 'A BATHING APE'] },
+    { name: 'Stussy', variants: ['STUSSY', 'STÜSSY'] },
+    { name: 'Comme des Garçons', variants: ['COMME DES GARCONS', 'CDG', 'COMME'] },
+    { name: 'Maison Margiela', variants: ['MAISON MARGIELA', 'MARGIELA', 'MM6'] },
+    { name: 'Chrome Hearts', variants: ['CHROME HEARTS', 'CHROME'] },
+    { name: 'KAPITAL', variants: ['KAPITAL'] },
+    { name: 'Hysteric Glamour', variants: ['HYSTERIC GLAMOUR', 'HYSTERIC'] },
+    
     // 캐주얼 브랜드
     { name: 'Tommy Hilfiger', variants: ['TOMMY HILFIGER', 'TOMMY', 'TH'] },
     { name: 'Calvin Klein', variants: ['CALVIN KLEIN', 'CK', 'C K'] },
@@ -130,6 +195,7 @@ export function extractBrand(textAnnotations) {
     { name: 'Lacoste', variants: ['LACOSTE', 'LACO STE'] },
     { name: "Levi's", variants: ['LEVIS', "LEVI'S", 'LE VIS'] },
     { name: 'Diesel', variants: ['DIESEL', 'DIE SEL'] },
+    { name: 'Carhartt', variants: ['CARHARTT', 'CAR HARTT'] },
     
     // 국내 브랜드
     { name: '무신사 스탠다드', variants: ['무신사', 'MUSINSA', 'MUSINSA STANDARD'] },
@@ -143,9 +209,15 @@ export function extractBrand(textAnnotations) {
     { name: 'TNGT', variants: ['TNGT', '잇미샤'] },
     { name: '폴햄', variants: ['폴햄', 'POLHAM'] },
     { name: '타미힐피거', variants: ['타미힐피거', 'TOMMY HILFIGER'] },
+    { name: '아더에러', variants: ['아더에러', 'ADER ERROR', 'ADERERROR'] },
+    { name: '준지', variants: ['준지', 'JUNJI'] },
+    { name: '띠어리', variants: ['띠어리', 'THEORY'] },
+    { name: '지용킴', variants: ['지용킴', 'JIYONG KIM'] },
     
     // 아웃도어 브랜드
     { name: 'The North Face', variants: ['THE NORTH FACE', 'NORTH FACE', 'TNF'] },
+    { name: 'ARCTERYX', variants: ['ARCTERYX', "ARC'TERYX", '아크테릭스'] },
+    { name: 'Patagonia', variants: ['PATAGONIA', 'PATA GONIA'] },
     { name: 'Columbia', variants: ['COLUMBIA', 'COLUM BIA'] },
     { name: 'K2', variants: ['K2', 'K 2'] },
     { name: 'Kolon Sport', variants: ['KOLON SPORT', 'KOLONSPORT', '코오롱'] },

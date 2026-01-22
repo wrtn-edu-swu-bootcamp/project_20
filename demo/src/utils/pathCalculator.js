@@ -1,8 +1,10 @@
 /**
- * 등급에 따라 5가지 재사용 경로 추천
+ * 등급과 브랜드에 따라 5가지 재사용 경로 추천
  */
+import { getBrandTier } from '../services/gradeClassifier.js';
 
-export function calculatePaths(grade, category) {
+export function calculatePaths(grade, category, brand = null) {
+  const brandTier = getBrandTier(brand);
   const paths = [
     {
       id: 'resale',
@@ -66,9 +68,9 @@ export function calculatePaths(grade, category) {
     }
   ];
 
-  // 등급별 우선순위 및 가치 계산
+  // 등급별 우선순위 및 가치 계산 (브랜드 Tier 반영)
   paths.forEach(path => {
-    const config = getPathConfig(path.id, grade, category);
+    const config = getPathConfig(path.id, grade, category, brandTier, brand);
     Object.assign(path, config);
   });
 
@@ -76,14 +78,54 @@ export function calculatePaths(grade, category) {
   return paths.sort((a, b) => b.priority - a.priority);
 }
 
-function getPathConfig(pathId, grade, category) {
+function getPathConfig(pathId, grade, category, brandTier, brandName) {
+  // 브랜드 Tier별 플랫폼 우선순위
+  const getPlatformsByTier = (tier) => {
+    switch(tier) {
+      case 'premium':
+        return ['후루츠 패밀리', '크림', '발란', '머스트잇'];
+      case 'popular':
+        return ['번개장터', '당근마켓', '중고나라', '후루츠 패밀리'];
+      case 'sports':
+        return ['번개장터', '당근마켓', '크림', '솔드아웃'];
+      case 'basic':
+      default:
+        return ['당근마켓', '번개장터', '중고나라'];
+    }
+  };
+
   const configs = {
     resale: {
-      S: { priority: 100, value: '50,000~80,000원', desc: '신품급! 중고 플랫폼에서 높은 가격 책정 가능', platforms: ['당근마켓', '번개장터', '중고나라', '후루츠 패밀리'] },
-      A: { priority: 95, value: '30,000~60,000원', desc: '사용감 적어 재판매에 최적', platforms: ['당근마켓', '번개장터', '중고나라', '후루츠 패밀리'] },
-      B: { priority: 80, value: '15,000~35,000원', desc: '적정 가격으로 판매 가능', platforms: ['당근마켓', '번개장터', '후루츠 패밀리'] },
-      C: { priority: 40, value: '5,000~15,000원', desc: '저가 판매 가능', platforms: ['당근마켓', '후루츠 패밀리'] },
-      D: { priority: 10, value: '판매 어려움', desc: '재판매는 비추천', platforms: [] }
+      S: { 
+        priority: 100, 
+        value: brandTier === 'premium' ? '100,000~500,000원' : '50,000~80,000원', 
+        desc: brandTier === 'premium' ? '명품/한정판! 프리미엄 플랫폼 추천' : '신품급! 중고 플랫폼에서 높은 가격 책정 가능', 
+        platforms: getPlatformsByTier(brandTier) 
+      },
+      A: { 
+        priority: 95, 
+        value: brandTier === 'premium' ? '70,000~300,000원' : '30,000~60,000원', 
+        desc: '사용감 적어 재판매에 최적', 
+        platforms: getPlatformsByTier(brandTier) 
+      },
+      B: { 
+        priority: 80, 
+        value: brandTier === 'premium' ? '50,000~150,000원' : '15,000~35,000원', 
+        desc: '적정 가격으로 판매 가능', 
+        platforms: getPlatformsByTier(brandTier) 
+      },
+      C: { 
+        priority: brandTier === 'premium' ? 60 : 40, 
+        value: brandTier === 'premium' ? '30,000~80,000원' : '5,000~15,000원', 
+        desc: brandTier === 'premium' ? '명품은 상태 관계없이 수요 있음' : '저가 판매 가능', 
+        platforms: brandTier === 'premium' ? ['후루츠 패밀리', '당근마켓'] : ['당근마켓', '후루츠 패밀리'] 
+      },
+      D: { 
+        priority: brandTier === 'premium' ? 40 : 10, 
+        value: brandTier === 'premium' ? '20,000~50,000원' : '판매 어려움', 
+        desc: brandTier === 'premium' ? '명품은 부품/수리용으로도 가치 있음' : '재판매는 비추천', 
+        platforms: brandTier === 'premium' ? ['후루츠 패밀리'] : [] 
+      }
     },
     donation: {
       S: { priority: 60, value: '세액공제 가능', desc: '신품급 의류는 높은 기부 가치', platforms: ['아름다운가게', '굿윌스토어'] },
@@ -117,8 +159,14 @@ function getPathConfig(pathId, grade, category) {
 
   const config = configs[pathId]?.[grade] || configs[pathId]['B'];
   
+  // 브랜드 Tier가 premium이면 재판매 우선순위 상승
+  let priority = config.priority;
+  if (pathId === 'resale' && brandTier === 'premium') {
+    priority += 5;
+  }
+  
   return {
-    priority: config.priority,
+    priority: priority,
     estimatedValue: config.value,
     description: config.desc,
     platforms: config.platforms

@@ -23,8 +23,8 @@ export async function analyzeClothing(imageFile) {
   const damage = detectDamage(labels);
   const brand = extractBrand(texts);
   
-  // 4. 경로 추천 및 임팩트 계산
-  const recommendedPaths = calculatePaths(grade, category);
+  // 4. 경로 추천 및 임팩트 계산 (브랜드 정보 포함)
+  const recommendedPaths = calculatePaths(grade, category, brand);
   const environmentalImpact = calculateImpact(grade);
   
   // 5. 최종 결과

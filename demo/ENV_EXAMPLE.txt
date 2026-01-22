@@ -1,0 +1,13 @@
+# .env 파일 생성 가이드
+# 이 파일을 복사해서 .env 파일로 만드세요
+
+# Google Vision API 키 (무료 1,000건/월)
+# https://console.cloud.google.com 에서 발급
+VITE_GOOGLE_VISION_KEY=your_api_key_here
+
+# 발급 방법:
+# 1. Google Cloud Console (https://console.cloud.google.com) 접속
+# 2. 프로젝트 생성
+# 3. "API 및 서비스" > "라이브러리" > "Vision API" 검색 및 활성화
+# 4. "API 및 서비스" > "사용자 인증 정보" > "사용자 인증 정보 만들기" > "API 키"
+# 5. 생성된 API 키를 위에 붙여넣기

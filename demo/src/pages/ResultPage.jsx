@@ -1,9 +1,15 @@
-import { ArrowLeft, Package, CheckCircle2, AlertCircle, Tag, TrendingUp, PieChart, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, AlertCircle, Tag, TrendingUp, PieChart, ChevronRight, Edit2, Check, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { ALL_BRANDS } from '../services/gradeClassifier';
+import { calculatePaths } from '../utils/pathCalculator';
 
 export default function ResultPage({ result, imageUrl, onBackToHome }) {
   const [isLoading, setIsLoading] = useState(true);
   const [showResults, setShowResults] = useState(false);
+  const [editingBrand, setEditingBrand] = useState(false);
+  const [brandInput, setBrandInput] = useState(result.brand || '');
+  const [filteredBrands, setFilteredBrands] = useState([]);
+  const [currentResult, setCurrentResult] = useState(result);
 
   useEffect(() => {
     // 스켈레톤 로딩 효과
@@ -12,6 +18,37 @@ export default function ResultPage({ result, imageUrl, onBackToHome }) {
       setTimeout(() => setShowResults(true), 100);
     }, 800);
   }, []);
+
+  // 브랜드 자동완성 필터링
+  useEffect(() => {
+    if (brandInput) {
+      const filtered = ALL_BRANDS.filter(brand =>
+        brand.toLowerCase().includes(brandInput.toLowerCase())
+      ).slice(0, 10);
+      setFilteredBrands(filtered);
+    } else {
+      setFilteredBrands([]);
+    }
+  }, [brandInput]);
+
+  // 브랜드 변경 핸들러
+  const handleBrandUpdate = (newBrand) => {
+    const updatedPaths = calculatePaths(currentResult.grade, currentResult.category, newBrand);
+    setCurrentResult({
+      ...currentResult,
+      brand: newBrand,
+      recommendedPaths: updatedPaths
+    });
+    setBrandInput(newBrand);
+    setEditingBrand(false);
+    setFilteredBrands([]);
+  };
+
+  const handleCancelEdit = () => {
+    setBrandInput(currentResult.brand || '');
+    setEditingBrand(false);
+    setFilteredBrands([]);
+  };
 
   const gradeLabels = {
     S: '신품급',
@@ -112,14 +149,72 @@ export default function ResultPage({ result, imageUrl, onBackToHome }) {
                       value={result.damage.join(', ')}
                     />
 
-                    {/* Brand */}
-                    {result.brand && (
-                      <DataRow
-                        icon={<Tag className="w-5 h-5 text-[#2DD4BF]" />}
-                        label="브랜드"
-                        value={result.brand}
-                      />
-                    )}
+                    {/* Brand with Edit */}
+                    <div className="py-4 border-b border-dashed border-slate-200">
+                      <div className="flex items-center justify-between gap-8">
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <Tag className="w-5 h-5 text-[#2DD4BF]" />
+                          <span className="text-sm font-semibold text-slate-500">브랜드</span>
+                        </div>
+                        
+                        {!editingBrand ? (
+                          <div className="flex items-center gap-3">
+                            <span className="text-base font-bold text-slate-900 text-right">
+                              {currentResult.brand || '인식 안됨'}
+                            </span>
+                            <button
+                              onClick={() => setEditingBrand(true)}
+                              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors"
+                              title="브랜드 수정"
+                            >
+                              <Edit2 className="w-4 h-4 text-slate-400 hover:text-[#2DD4BF]" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="relative flex-1 max-w-xs">
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="text"
+                                value={brandInput}
+                                onChange={(e) => setBrandInput(e.target.value)}
+                                placeholder="브랜드명 입력..."
+                                className="flex-1 px-3 py-2 border border-[#2DD4BF] rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#2DD4BF]"
+                                autoFocus
+                              />
+                              <button
+                                onClick={() => handleBrandUpdate(brandInput)}
+                                className="p-2 bg-[#2DD4BF] hover:bg-[#14B8A6] text-white rounded-lg transition-colors"
+                                title="저장"
+                              >
+                                <Check className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={handleCancelEdit}
+                                className="p-2 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-lg transition-colors"
+                                title="취소"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            </div>
+                            
+                            {/* 자동완성 드롭다운 */}
+                            {filteredBrands.length > 0 && (
+                              <div className="absolute top-full left-0 right-12 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10">
+                                {filteredBrands.map((brand, i) => (
+                                  <button
+                                    key={i}
+                                    onClick={() => handleBrandUpdate(brand)}
+                                    className="w-full px-3 py-2 text-left text-sm hover:bg-slate-100 transition-colors"
+                                  >
+                                    {brand}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
                     {/* Confidence with Progress Bar */}
                     <div className="py-4 space-y-3">
@@ -144,7 +239,7 @@ export default function ResultPage({ result, imageUrl, onBackToHome }) {
                     <div className="py-4 border-t border-slate-200">
                       <p className="text-xs font-semibold text-slate-500 mb-3">AI 인식 키워드</p>
                       <div className="flex flex-wrap gap-2">
-                        {result.labels.map((label, i) => (
+                        {currentResult.labels.map((label, i) => (
                           <span key={i} className="px-3 py-1 bg-slate-100 text-slate-700 rounded-lg text-xs font-medium border border-slate-200">
                             {label}
                           </span>
@@ -176,7 +271,7 @@ export default function ResultPage({ result, imageUrl, onBackToHome }) {
             </div>
             
             <div className="space-y-16">
-              {result.recommendedPaths.map((path, index) => (
+              {currentResult.recommendedPaths.map((path, index) => (
                 <PathCard key={path.id} path={path} rank={index + 1} />
               ))}
             </div>
@@ -190,17 +285,17 @@ export default function ResultPage({ result, imageUrl, onBackToHome }) {
               <div className="grid grid-cols-3 gap-12">
                 <ImpactItem
                   emoji="🌍"
-                  value={result.environmentalImpact.co2ReductionFormatted}
+                  value={currentResult.environmentalImpact.co2ReductionFormatted}
                   label="CO2 절감량"
                 />
                 <ImpactItem
                   emoji="🌳"
-                  value={`${result.environmentalImpact.treesEquivalent}그루`}
+                  value={`${currentResult.environmentalImpact.treesEquivalent}그루`}
                   label="나무 심기 효과"
                 />
                 <ImpactItem
                   emoji="💧"
-                  value={result.environmentalImpact.waterSavedFormatted}
+                  value={currentResult.environmentalImpact.waterSavedFormatted}
                   label="물 절약량"
                 />
               </div>
