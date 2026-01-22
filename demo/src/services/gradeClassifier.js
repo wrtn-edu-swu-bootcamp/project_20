@@ -7,41 +7,68 @@ export function classifyGrade(visionResult) {
   const labels = (visionResult.labelAnnotations || []).map(l => l.description.toLowerCase());
   const colors = visionResult.imagePropertiesAnnotation?.dominantColors?.colors || [];
   
-  let score = 50; // 기본 B등급
+  let score = 60; // 기본 A-B 사이로 상향
   
-  // 1. 품질 키워드 체크 (+/- 20점)
-  const highQuality = ['new', 'clean', 'pristine', 'unworn', 'mint', 'fresh'];
-  const lowQuality = ['worn', 'old', 'damaged', 'stained', 'torn', 'faded', 'dirty'];
+  // 1. 품질 키워드 체크 (확장된 키워드, +/- 25점)
+  const highQuality = [
+    'new', 'clean', 'pristine', 'unworn', 'mint', 'fresh', 'perfect', 'excellent',
+    'fashion', 'style', 'modern', 'elegant', 'beauty', 'clothing', 'textile',
+    'white', 'bright', 'neat', 'tidy'
+  ];
+  const lowQuality = [
+    'worn', 'old', 'damaged', 'stained', 'torn', 'faded', 'dirty', 'vintage',
+    'used', 'wrinkled', 'hole', 'scratch', 'mark', 'spot', 'discolored'
+  ];
   
+  let qualityBonus = 0;
   labels.forEach(label => {
     if (highQuality.some(kw => label.includes(kw))) {
-      score += 20;
+      qualityBonus += 3; // 고품질 키워드당 +3점
     }
     if (lowQuality.some(kw => label.includes(kw))) {
-      score -= 20;
+      qualityBonus -= 8; // 저품질 키워드당 -8점 (더 강하게)
     }
   });
+  score += Math.max(-30, Math.min(30, qualityBonus)); // -30 ~ +30 범위
   
-  // 2. 색상 선명도 체크 (+/- 15점)
+  // 2. 색상 선명도 체크 (개선된 로직, +/- 20점)
   if (colors.length > 0) {
-    const avgBrightness = colors.reduce((sum, c) => {
-      return sum + (c.color.red + c.color.green + c.color.blue) / 3;
-    }, 0) / colors.length;
+    const topColor = colors[0];
+    const brightness = (topColor.color.red + topColor.color.green + topColor.color.blue) / 3;
+    const saturation = Math.max(
+      Math.abs(topColor.color.red - topColor.color.green),
+      Math.abs(topColor.color.green - topColor.color.blue),
+      Math.abs(topColor.color.blue - topColor.color.red)
+    );
     
-    if (avgBrightness > 150) score += 15; // 밝고 선명
-    if (avgBrightness < 80) score -= 15; // 어둡고 변색
+    // 밝고 선명한 색상 = 좋은 상태
+    if (brightness > 180 && saturation > 30) {
+      score += 15;
+    } else if (brightness > 140) {
+      score += 8;
+    }
+    
+    // 어둡고 탁한 색상 = 나쁜 상태
+    if (brightness < 70 || saturation < 15) {
+      score -= 15;
+    }
   }
   
-  // 3. AI 신뢰도 (+/- 10점)
+  // 3. AI 신뢰도 (+/- 15점)
   const topConfidence = visionResult.labelAnnotations?.[0]?.score || 0;
-  if (topConfidence > 0.9) score += 10;
-  if (topConfidence < 0.7) score -= 5;
+  if (topConfidence > 0.95) score += 15;
+  else if (topConfidence > 0.85) score += 8;
+  else if (topConfidence < 0.6) score -= 10;
   
-  // 4. 등급 결정
-  if (score >= 80) return 'S';
-  if (score >= 65) return 'A';
-  if (score >= 45) return 'B';
-  if (score >= 25) return 'C';
+  // 4. 라벨 다양성 (많은 라벨 = 명확한 이미지 = 좋은 상태)
+  if (labels.length >= 10) score += 10;
+  else if (labels.length <= 3) score -= 5;
+  
+  // 5. 등급 결정 (범위 조정)
+  if (score >= 85) return 'S';
+  if (score >= 70) return 'A';
+  if (score >= 50) return 'B';
+  if (score >= 30) return 'C';
   return 'D';
 }
 
