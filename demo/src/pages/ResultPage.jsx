@@ -1,8 +1,31 @@
-import { ArrowLeft, Package, CheckCircle2, AlertCircle, Tag, TrendingUp, PieChart, ChevronRight, Edit2, Check, X } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, AlertCircle, Tag, TrendingUp, PieChart, ChevronRight, Edit2, Check, X, ExternalLink } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { ALL_BRANDS } from '../services/gradeClassifier';
 import { calculatePaths } from '../utils/pathCalculator';
 import { calculateImpact } from '../utils/impactCalculator';
+
+// 플랫폼별 웹사이트 URL 매핑
+const PLATFORM_URLS = {
+  '당근마켓': 'https://www.daangn.com',
+  '번개장터': 'https://www.bunjang.co.kr',
+  '후루츠 패밀리': 'https://fruitsfamily.com',
+  '크림': 'https://kream.co.kr',
+  '중고나라': 'https://cafe.naver.com/joonggonara',
+  '발란': 'https://www.balaan.co.kr',
+  '머스트잇': 'https://www.mustit.co.kr',
+  '솔드아웃': 'https://www.soldout.co.kr',
+  '아름다운가게': 'https://www.beautifulstore.org',
+  '굿윌스토어': 'https://www.goodwillstore.kr',
+  '옷캔': 'https://www.10000won.com',
+  '컨티뉴': 'https://www.re-continew.com',
+  '래;코드': 'https://www.recode.kr',
+  '플리츠마마': 'https://www.pleatsmama.com',
+  '의류수거함': 'https://www.me.go.kr',
+  '주민센터': 'https://www.gov.kr',
+  '구청': 'https://www.seoul.go.kr',
+  '의류 렌탈 업체': 'https://www.google.com/search?q=의류+렌탈',
+  '로컬 리폼샵': 'https://www.google.com/search?q=의류+리폼샵'
+};
 
 export default function ResultPage({ result, imageUrl, onBackToHome }) {
   const [isLoading, setIsLoading] = useState(true);
@@ -372,14 +395,17 @@ function PathCard({ path, rank }) {
         {/* Platforms */}
         {path.platforms.length > 0 && (
           <div className="space-y-4 pt-6 border-t border-slate-200 text-center">
-            <p className="text-sm font-bold text-slate-600">추천 플랫폼</p>
+            <p className="text-sm font-bold text-slate-600">추천 플랫폼 (클릭하여 바로가기)</p>
             <div className="flex flex-wrap gap-3 justify-center">
               {path.platforms.map((platform, i) => (
                 <button
                   key={i}
-                  className="px-5 py-2.5 bg-slate-100 hover:bg-[#2DD4BF] hover:text-white border border-slate-200 hover:border-[#2DD4BF] rounded-lg text-sm font-bold text-slate-900 transition-all duration-300"
+                  onClick={() => window.open(PLATFORM_URLS[platform] || `https://www.google.com/search?q=${encodeURIComponent(platform)}`, '_blank')}
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-[#2DD4BF] hover:text-white border border-slate-200 hover:border-[#2DD4BF] rounded-lg text-sm font-bold text-slate-900 transition-all duration-300 flex items-center gap-2 cursor-pointer"
+                  title={`${platform} 웹사이트로 이동`}
                 >
                   {platform}
+                  <ExternalLink className="w-3 h-3" />
                 </button>
               ))}
             </div>
