@@ -1,141 +1,317 @@
-# RE:OUT (루트) - AI 기반 의류 자원 순환 플랫폼
+# RE:OUT (루트) - AI 기반 의류 재사용 경로 추천 서비스
 
-> **버리기 전 3초, 당신의 옷이 갈 가장 가치 있는 길을 찾으세요**
+> **버릴까, 팔까? 고민은 AI가, 결정은 3초 만에.**
 
-## 프로젝트 소개
+[![Demo](https://img.shields.io/badge/Demo-Live-brightgreen)](https://github.com/wrtn-edu-swu-bootcamp/project_20)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-RE:OUT은 AI 이미지 분석 기술을 활용하여 의류의 최적 재사용 경로를 추천하는 서비스입니다. 사진 한 장으로 의류의 상태를 자동 평가하고, 재판매·기부·업사이클·재활용·렌탈 등 5가지 경로 중 가장 가치 있는 선택을 3초 만에 제시합니다.
+## 📖 프로젝트 소개
 
-## 주요 특징
+RE:OUT은 **AI 이미지 분석**을 통해 의류의 상태를 자동으로 평가하고, 가장 적합한 재사용 경로(재판매/기부/업사이클/재활용/렌탈)를 3초 만에 추천하는 웹 서비스입니다.
 
-- **3초 분석**: AI 기반 즉시 의류 상태 평가
-- **5가지 경로**: 재판매, 기부, 업사이클, 재활용, 렌탈
-- **B2B & B2C**: 개인과 기업 모두를 위한 솔루션
-- **환경 임팩트**: CO2 절감량, 폐기물 감소 가시화
+사진 한 장으로 의류 폐기 결정의 고민을 제거하고, 환경적 가치와 경제적 이익을 동시에 제공합니다.
 
-## 문서 구조
+---
+
+## 🎯 주요 기능
+
+### 1. **AI 이미지 분석**
+- Google Vision API를 활용한 의류 이미지 인식
+- 자동 카테고리 분류 (상의/하의/아우터/신발/가방/모자 등)
+- 상태 등급 평가 (S/A/B/C/D 등급)
+- 손상 여부 감지 (얼룩, 구멍, 색바램 등)
+- 100+ 글로벌/국내 브랜드 자동 인식
+
+### 2. **최적 경로 추천**
+- **재판매**: 당근마켓, 번개장터, 크림, 무신사 등
+- **기부**: 아름다운가게, 굿윌스토어, 사랑의 옷장 등
+- **업사이클**: 리블랭크, 플리츠마마, 래코드 등
+- **재활용**: 의류수거함, H&M 회수 프로그램 등
+- **렌탈**: 열린옷장, 프로젝트앤 등
+
+### 3. **환경 임팩트 시각화**
+- CO2 절감량 계산 (의류 1벌당 평균 3.5kg)
+- 나무 심기 효과 환산
+- 물 절약량 계산 (의류 1벌당 평균 2,700L)
+
+---
+
+## 🛠️ 기술 스택
+
+### **Frontend**
+- **React** 18.3.1 - UI 프레임워크
+- **Vite** 6.0.5 - 빌드 도구
+- **Tailwind CSS** 4.0.15 - 스타일링
+- **Lucide React** - 아이콘 라이브러리
+
+### **AI & API**
+- **Google Cloud Vision API** - 이미지 분석
+  - Label Detection (객체 인식)
+  - Text Detection (OCR, 브랜드 인식)
+  - Image Properties (색상 분석)
+- **Axios** - HTTP 클라이언트
+
+### **Deployment**
+- **Vercel** - 호스팅 및 배포
+- **GitHub** - 버전 관리
+
+---
+
+## 🚀 시작하기
+
+### 1. **필수 요구사항**
+- Node.js 18 이상
+- npm 또는 yarn
+- Google Cloud Platform 계정 (Vision API 사용)
+
+### 2. **설치**
+
+```bash
+# 저장소 클론
+git clone https://github.com/wrtn-edu-swu-bootcamp/project_20.git
+cd project_20
+
+# 의존성 설치
+cd demo
+npm install
+```
+
+### 3. **환경 변수 설정**
+
+`demo/.env` 파일을 생성하고 Google Vision API 키를 입력하세요:
+
+```env
+VITE_GOOGLE_VISION_KEY=your_api_key_here
+```
+
+**API 키 발급 방법:**
+1. [Google Cloud Console](https://console.cloud.google.com/) 접속
+2. 프로젝트 생성 또는 선택
+3. "API 및 서비스" > "라이브러리" > "Cloud Vision API" 활성화
+4. "사용자 인증 정보" > "API 키 만들기"
+5. 생성된 키를 복사하여 `.env` 파일에 붙여넣기
+
+### 4. **실행**
+
+```bash
+# 개발 서버 실행
+npm run dev
+
+# 브라우저에서 열기
+# http://localhost:5173
+```
+
+### 5. **빌드**
+
+```bash
+# 프로덕션 빌드
+npm run build
+
+# 빌드 결과 미리보기
+npm run preview
+```
+
+---
+
+## 📂 프로젝트 구조
 
 ```
 project/
-├── README.md                    # 프로젝트 개요 (현재 문서)
-└── docs/                        # 기획 문서
-    ├── service-proposal.md      # 서비스 기획안 (메인)
-    └── user-scenarios.md        # 사용자 시나리오
+├── demo/                          # 웹 애플리케이션
+│   ├── src/
+│   │   ├── pages/                 # 페이지 컴포넌트
+│   │   │   ├── HomePage.jsx      # 메인 페이지
+│   │   │   ├── AnalysisPage.jsx  # 분석 중 페이지
+│   │   │   └── ResultPage.jsx    # 결과 페이지
+│   │   ├── services/              # API 및 비즈니스 로직
+│   │   │   ├── googleVision.js   # Google Vision API 연동
+│   │   │   ├── aiAnalysis.js     # AI 분석 통합
+│   │   │   └── gradeClassifier.js # 등급 분류 로직
+│   │   └── utils/                 # 유틸리티 함수
+│   │       ├── pathCalculator.js # 경로 추천 로직
+│   │       └── impactCalculator.js # 환경 임팩트 계산
+│   ├── index.html
+│   ├── package.json
+│   └── .env                       # 환경 변수 (gitignore)
+├── docs/                          # 기획 문서
+│   ├── service-proposal.md        # 서비스 기획안
+│   └── user-scenarios.md          # 사용자 시나리오
+└── README.md                      # 현재 문서
 ```
 
-## 기획 문서
+---
 
-### 📄 [서비스 기획안](docs/service-proposal.md)
+## 🔍 작동 원리
 
-RE:OUT의 전체 서비스 기획 내용을 담고 있습니다.
+### **1. 이미지 업로드**
+사용자가 의류 사진을 업로드하면 파일이 Base64로 인코딩되어 Google Vision API로 전송됩니다.
 
-**주요 섹션:**
-1. 프로젝트 개요
-2. 배경 및 문제 정의
-3. 솔루션
-4. 타겟 시장 및 고객 분석
-5. 주요 기능 (MVP 중심)
-6. 사용자 플로우
-7. 비즈니스 모델
-8. 성공 지표 (KPI)
-9. 로드맵
-10. 리스크 및 대응 방안
-11. 결론 및 넥스트 스텝
+### **2. AI 분석**
+```javascript
+// Google Vision API 호출
+const visionResult = await analyzeImageWithVision(base64Image);
 
-### 📋 [사용자 시나리오](docs/user-scenarios.md)
+// 3가지 기능 활용
+- labelAnnotations: 객체 인식 (카테고리 분류, 손상 감지)
+- textAnnotations: OCR (브랜드명 추출)
+- imagePropertiesAnnotation: 색상 분석
+```
 
-실제 사용 상황을 구체적으로 묘사한 7가지 시나리오:
+### **3. 등급 분류**
+```javascript
+// 규칙 기반 분류 로직
+const grade = classifyGrade(visionResult);
 
-1. **개인 사용자** - 옷장 정리하는 직장인 지민
-2. **B2B 기업** - 중소 패션 브랜드 '어반베이직'
-3. **업사이클링 스튜디오** - '새옷'의 원료 소싱
-4. **중고 거래 플랫폼** - 'K중고'의 API 연동
-5. **환경 단체** - '그린패션'의 캠페인 활용
-6. **명품 재판매** - 대학생 민지의 버버리 코트
-7. **대기업** - S패션의 ESG 프로그램
+// S등급: 신품급 (라벨 포함)
+// A등급: 매우 좋음 (미세한 사용감)
+// B등급: 좋음 (경미한 손상)
+// C등급: 보통 (눈에 띄는 손상)
+// D등급: 나쁨 (심각한 손상)
+```
 
-## 서비스 컨셉
+### **4. 경로 추천**
+```javascript
+// 등급별 최적 경로 매칭
+const paths = calculatePaths(grade, category, brand);
 
-### 네이밍 의미
-- **RE**: Recycle (재활용), Re-use (재사용)
-- **OUT**: Output (배출), 새로운 출구
-- **Route**: 헌 옷이 나가는 최적의 길(경로)
+// S/A등급 → 재판매 우선
+// B등급 → 기부/업사이클 우선
+// C/D등급 → 재활용 우선
+```
 
-### 비전
-버려지는 모든 의류가 가장 가치 있는 곳으로 흐르는 세상을 만듭니다.
+### **5. 환경 임팩트 계산**
+```javascript
+// 의류 재사용 시 환경 효과 산출
+const impact = {
+  co2Saved: 3.5,      // kg
+  treesPlanted: 0.16, // 그루
+  waterSaved: 2700    // L
+};
+```
 
-### 미션
-- 의류 폐기 결정의 고민을 없애고, 누구나 쉽게 자원 순환에 참여할 수 있게 합니다
-- AI 기술로 의류 분류 비용을 획기적으로 절감하여 순환 경제를 활성화합니다
-- 개인과 기업 모두가 환경적 가치와 경제적 이익을 동시에 얻을 수 있도록 돕습니다
+---
 
-## 타겟 사용자
+## 💡 기대 효과
 
-### B2C (개인 소비자)
-- 20-30대 직장인
-- 30-40대 부모
-- 미니멀리스트 / 환경 의식 소비자
-
-### B2B (기업)
-- 패션 브랜드 / 제조사
-- 리테일 / 유통업체
-- 재활용 / 업사이클링 업체
-
-## 핵심 가치
-
-### 개인 사용자
+### **개인 사용자**
 - ⏱️ **시간 절약**: 의류 1벌당 고민 시간 3분 → 3초
-- 💰 **부수익 창출**: 예상 판매가 자동 산출
-- 🌱 **환경 기여**: CO2 절감량 가시화
+- 💰 **부수익 창출**: 예상 판매가 자동 산출로 중고거래 활성화
+- 🌱 **환경 기여**: 1인당 연평균 의류 폐기량 8.3kg 감소
 
-### 기업 사용자
-- 💵 **비용 절감**: 재고 처리 비용 50% 이상 절감
-- 📊 **ESG 성과**: 구체적 수치로 보고서 작성
-- 🏢 **브랜드 이미지**: 친환경 기업 이미지 제고
+### **기업/단체**
+- 💵 **비용 절감**: 의류 분류/재고 처리 비용 50% 이상 절감
+- 📊 **ESG 성과**: 구체적 수치(CO2, 물 절약)로 보고서 작성 가능
+- 🏢 **브랜드 가치**: 친환경 이미지 제고 및 순환경제 참여
 
-## 로드맵
+### **사회 전체**
+- 🌍 **폐기물 감소**: 연간 의류 폐기량 8만톤 → 목표 20% 감소
+- ♻️ **재활용률 증가**: 현재 11% → 목표 30%
+- 🌿 **탄소 절감**: 연간 약 3,000톤 CO2 절감 (12개월 기준)
 
-### Phase 1: MVP (1-3개월)
-- AI 엔진 개발
-- 웹 기반 MVP
-- B2B 파일럿 테스트
+---
 
-### Phase 2: 베타 런칭 (4-6개월)
-- B2C 모바일 앱 출시
-- 파트너십 확대
-- 마케팅 시작
+## 📊 핵심 성과 지표 (KPI)
 
-### Phase 3: 본격 확장 (7-12개월)
-- API 서비스 런칭
-- 생태계 구축
-- 수익화 본격화
+| 지표 | 현재 (국내) | 목표 (12개월) |
+|------|-------------|---------------|
+| 분석된 의류 | - | 100만 벌 |
+| 재사용된 의류 | - | 80만 벌 |
+| CO2 절감량 | - | 3,000톤 |
+| 의류 폐기 비용 절감 | - | 50억원 |
+| 사용자 수 | - | 10만명 |
 
-### Phase 4: 장기 비전 (12개월 이후)
-- 플랫폼화
-- 카테고리 확장 (가구, 전자제품 등)
-- 글로벌 확장
+---
 
-## 예상 임팩트 (12개월)
+## 🎨 UI/UX 특징
 
-| 지표 | 목표 |
-|------|------|
-| 재사용된 의류 | 100만 벌 |
-| CO2 절감량 | 3,000톤 |
-| 폐기 비용 절감 | 50억원 |
+### **디자인 컨셉**
+- **Minimalist Sustainable Tech**: MUJI/COS/Apple/Naver 스타일
+- 무채색 기반 (#000 ~ #EAEAEA)
+- 포인트 컬러: 민트 (#2DD4BF)
+- 얇은 sans-serif 폰트 (Inter, Noto Sans KR)
 
-## 넥스트 스텝
+### **사용자 경험**
+- 3초 분석 완료 및 실시간 진행 표시
+- 직관적인 업로드 인터페이스 (드래그 앤 드롭)
+- AI 신뢰도 게이지 바로 신뢰성 강조
+- 모바일 반응형 디자인
 
-1. ✅ **서비스 기획안 작성** (완료)
-2. 🎨 **와이어프레임 및 디자인 가이드** (예정)
-3. 💻 **기술 스펙 정의** (예정)
-4. 🤝 **초기 파트너 발굴** (예정)
-5. 💰 **투자 유치 준비** (예정)
+---
 
-## 문의
+## 🌐 배포
 
-RE:OUT 프로젝트에 대한 문의사항이나 협업 제안은 언제든 환영합니다.
+### **Vercel 배포**
+
+```bash
+# Vercel CLI 설치
+npm install -g vercel
+
+# 배포
+cd demo
+vercel
+
+# 프로덕션 배포
+vercel --prod
+```
+
+### **환경 변수 설정**
+Vercel 대시보드에서 `VITE_GOOGLE_VISION_KEY` 환경 변수를 설정하세요.
+
+---
+
+## 💰 비용 구조
+
+### **Google Vision API**
+- **무료 티어**: 월 1,000건
+- **추가 비용**: 1,000건당 $1.50
+- **예상 비용**: 월 10만건 기준 약 $150 (약 20만원)
+
+### **Vercel 호스팅**
+- **무료 티어**: Hobby 플랜 (개인 프로젝트)
+- **Pro 플랜**: 월 $20 (팀 협업)
+
+### **총 운영 비용**
+- **MVP 단계**: 무료 (월 1,000건 이하)
+- **초기 운영**: 월 약 20만원 (월 10만건)
+- **확장 시**: 월 약 200만원 (월 100만건)
+
+---
+
+## 🤝 기여하기
+
+이 프로젝트는 오픈소스이며, 기여를 환영합니다!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 라이센스
+
+이 프로젝트는 MIT 라이센스를 따릅니다. 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+
+---
+
+## 📞 문의
+
+**RE:OUT 프로젝트 팀**
+
+- GitHub: [wrtn-edu-swu-bootcamp/project_20](https://github.com/wrtn-edu-swu-bootcamp/project_20)
+- 이슈 제보: [GitHub Issues](https://github.com/wrtn-edu-swu-bootcamp/project_20/issues)
+
+---
+
+## 🙏 참고 자료
+
+- [Google Cloud Vision API Documentation](https://cloud.google.com/vision/docs)
+- [React Documentation](https://react.dev/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/)
+- [Vercel Deployment Guide](https://vercel.com/docs)
 
 ---
 
 **RE:OUT은 단순한 앱이 아닙니다.**  
-**버려지는 옷에 새로운 길을 열어주는, 의류 순환 생태계의 시작입니다.**
+**버려지는 옷에 새로운 길을 열어주는, 의류 순환 생태계의 시작입니다.** 🌱♻️
